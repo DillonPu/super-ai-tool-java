@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.superai.system.mapper.WxUserPointLogMapper">
+    
+    <resultMap type="WxUserPointLog" id="WxUserPointLogResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="pointFrom"    column="point_from"    />
+        <result property="pointTo"    column="point_to"    />
+        <result property="point"    column="point"    />
+        <result property="description"    column="description"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectWxUserPointLogVo">
+        select id, user_id, point_from, point_to, point, description, create_by, create_time, update_by, update_time from wx_user_point_log
+    </sql>
+
+    <select id="selectWxUserPointLogList" parameterType="WxUserPointLog" resultMap="WxUserPointLogResult">
+        <include refid="selectWxUserPointLogVo"/>
+        <where>  
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="pointFrom != null  and pointFrom != ''"> and point_from = #{pointFrom}</if>
+            <if test="pointTo != null  and pointTo != ''"> and point_to = #{pointTo}</if>
+            <if test="point != null "> and point = #{point}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where>
+    </select>
+    
+    <select id="selectWxUserPointLogById" parameterType="String" resultMap="WxUserPointLogResult">
+        <include refid="selectWxUserPointLogVo"/>
+        where id = #{id}
+    </select>
+    <select id="getDaySignPoint" resultType="java.lang.Integer">
+        SELECT point FROM wx_user_point_log
+        WHERE user_id = #{userId}
+        AND point_from = #{code}
+        AND to_days(create_time) = to_days(now());
+    </select>
+    <select id="listPointLog" resultType="com.superai.common.core.domain.vo.WxUserPointAndMoneyLogVO">
+        SELECT create_time AS time,
+               point AS value,
+               description
+        FROM wx_user_point_log
+        WHERE user_id = #{param.userId}
+        <if test="param.beginDate!=null and param.endDate!=null">
+            AND (create_time BETWEEN #{param.beginDate} AND DATE_ADD(#{param.endDate}, INTERVAL 1 DAY ))
+        </if>
+        ORDER BY create_time DESC
+    </select>
+    <select id="getTotalPoint" resultType="java.lang.Integer">
+        SELECT SUM(point) as totalPoint FROM wx_user_point_log WHERE point_from IN ('1','2','3')
+    </select>
+
+    <insert id="insertWxUserPointLog" parameterType="WxUserPointLog">
+        insert into wx_user_point_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="pointFrom != null">point_from,</if>
+            <if test="pointTo != null">point_to,</if>
+            <if test="point != null">point,</if>
+            <if test="description != null">description,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="pointFrom != null">#{pointFrom},</if>
+            <if test="pointTo != null">#{pointTo},</if>
+            <if test="point != null">#{point},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWxUserPointLog" parameterType="WxUserPointLog">
+        update wx_user_point_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="pointFrom != null">point_from = #{pointFrom},</if>
+            <if test="pointTo != null">point_to = #{pointTo},</if>
+            <if test="point != null">point = #{point},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWxUserPointLogById" parameterType="String">
+        delete from wx_user_point_log where id = #{id}
+    </delete>
+
+    <delete id="deleteWxUserPointLogByIds" parameterType="String">
+        delete from wx_user_point_log where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

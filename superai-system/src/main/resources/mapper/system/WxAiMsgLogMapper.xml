@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.superai.system.mapper.WxAiMsgLogMapper">
+    
+    <resultMap type="WxAiMsgLog" id="WxAiMsgLogResult">
+        <result property="msgId"    column="msg_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="tojid"    column="tojid"    />
+        <result property="jid"    column="jid"    />
+        <result property="msg"    column="msg"    />
+        <result property="msgOrigin"    column="msg_origin"    />
+        <result property="type"    column="type"    />
+        <result property="isread"    column="isread"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="timestampValue"    column="timestamp_value"    />
+    </resultMap>
+
+    <sql id="selectWxAiMsgLogVo">
+        select msg_id, user_id, tojid, jid, msg, msg_origin, type, isread, create_by, create_time, update_by, update_time, timestamp_value from wx_ai_msg_log
+    </sql>
+
+    <select id="selectWxAiMsgLogList" parameterType="WxAiMsgLog" resultMap="WxAiMsgLogResult">
+        <include refid="selectWxAiMsgLogVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="tojid != null  and tojid != ''"> and tojid = #{tojid}</if>
+            <if test="jid != null  and jid != ''"> and jid = #{jid}</if>
+            <if test="msg != null  and msg != ''"> and msg = #{msg}</if>
+            <if test="msgOrigin != null  and msgOrigin != ''"> and msg_origin = #{msgOrigin}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="isread != null  and isread != ''"> and isread = #{isread}</if>
+            <if test="timestampValue != null "> and timestamp_value = #{timestampValue}</if>
+        </where>
+    </select>
+    
+    <select id="selectWxAiMsgLogByMsgId" parameterType="String" resultMap="WxAiMsgLogResult">
+        <include refid="selectWxAiMsgLogVo"/>
+        where msg_id = #{msgId}
+    </select>
+    <select id="listMsgLog" resultType="com.superai.common.core.domain.vo.AiChatMsgVO">
+        select msg_id AS msgId,
+               tojid,
+               jid,
+               msg,
+               msg_origin AS msgOrigin,
+               type,
+               isread,
+               timestamp_value AS timestampValue
+        from wx_ai_msg_log
+        WHERE user_id = #{param.userId}
+        AND type = #{messageType}
+        <if test="param.beginDate!=null and param.endDate!=null">
+            AND (create_time BETWEEN #{param.beginDate} AND DATE_ADD(#{param.endDate}, INTERVAL 1 DAY ))
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insertWxAiMsgLog" parameterType="WxAiMsgLog">
+        insert into wx_ai_msg_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="msgId != null">msg_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="tojid != null">tojid,</if>
+            <if test="jid != null">jid,</if>
+            <if test="msg != null">msg,</if>
+            <if test="msgOrigin != null">msg_origin,</if>
+            <if test="type != null">type,</if>
+            <if test="isread != null">isread,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="timestampValue != null">timestamp_value,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="msgId != null">#{msgId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="tojid != null">#{tojid},</if>
+            <if test="jid != null">#{jid},</if>
+            <if test="msg != null">#{msg},</if>
+            <if test="msgOrigin != null">#{msgOrigin},</if>
+            <if test="type != null">#{type},</if>
+            <if test="isread != null">#{isread},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="timestampValue != null">#{timestampValue},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWxAiMsgLog" parameterType="WxAiMsgLog">
+        update wx_ai_msg_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="tojid != null">tojid = #{tojid},</if>
+            <if test="jid != null">jid = #{jid},</if>
+            <if test="msg != null">msg = #{msg},</if>
+            <if test="msgOrigin != null">msg_origin = #{msgOrigin},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="isread != null">isread = #{isread},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="timestampValue != null">timestamp_value = #{timestampValue},</if>
+        </trim>
+        where msg_id = #{msgId}
+    </update>
+
+    <delete id="deleteWxAiMsgLogByMsgId" parameterType="String">
+        delete from wx_ai_msg_log where msg_id = #{msgId}
+    </delete>
+
+    <delete id="deleteWxAiMsgLogByMsgIds" parameterType="String">
+        delete from wx_ai_msg_log where msg_id in 
+        <foreach item="msgId" collection="array" open="(" separator="," close=")">
+            #{msgId}
+        </foreach>
+    </delete>
+</mapper>

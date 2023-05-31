@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.superai.system.mapper.WxFeedbackLogMapper">
+    
+    <resultMap type="WxFeedbackLog" id="WxFeedbackLogResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="questionTitle"    column="question_title"    />
+        <result property="questionDesc"    column="question_desc"    />
+        <result property="questionType"    column="question_type"    />
+        <result property="answer"    column="answer"    />
+        <result property="contact"    column="contact"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectWxFeedbackLogVo">
+        select id, user_id, question_title, question_desc, question_type, answer, contact,create_by, create_time, update_by, update_time from wx_feedback_log
+    </sql>
+
+    <select id="selectWxFeedbackLogList" parameterType="WxFeedbackLog" resultMap="WxFeedbackLogResult">
+        <include refid="selectWxFeedbackLogVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="questionTitle != null  and questionTitle != ''"> and question_title = #{questionTitle}</if>
+            <if test="questionDesc != null  and questionDesc != ''"> and question_desc = #{questionDesc}</if>
+            <if test="questionType != null  and questionType != ''"> and question_type = #{questionType}</if>
+            <if test="answer != null  and answer != ''"> and answer = #{answer}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+        </where>
+    </select>
+    
+    <select id="selectWxFeedbackLogById" parameterType="String" resultMap="WxFeedbackLogResult">
+        <include refid="selectWxFeedbackLogVo"/>
+        where id = #{id}
+    </select>
+    <select id="listFeedback" resultType="com.superai.common.core.domain.vo.WxFeedbackLogVO">
+        select id,
+               question_title AS questionTitle,
+               create_time AS createTime,
+              IF(answer IS NULL,false,true) AS isAnswer
+        from wx_feedback_log
+        WHERE user_id = #{param.userId}
+        <if test="param.questionTitle!=null and param.questionTitle!=null">
+            AND question_title LIKE concat('%',#{param.beginDate},'%')
+        </if>
+        <if test="param.questionDesc!=null and param.questionDesc!=null">
+            AND question_desc LIKE concat('%',#{param.questionDesc},'%')
+        </if>
+        <if test="param.questionType!=null and param.questionType!=null">
+            AND question_type LIKE concat('%',#{param.questionType},'%')
+        </if>
+        ORDER BY create_time DESC
+    </select>
+    <select id="getFeedbackDetail" resultType="com.superai.common.core.domain.vo.WxFeedbackLogDetailVO">
+        select id,
+               question_title AS questionTitle,
+               question_desc AS questionDesc,
+               question_type AS questionType,
+               answer,
+               contact,
+               create_by AS createBy,
+               create_time AS createTime,
+               update_by AS updateBy,
+               update_time AS updateTime,
+               IF(answer IS NULL,false,true) AS isAnswer
+        from wx_feedback_log
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insertWxFeedbackLog" parameterType="WxFeedbackLog">
+        insert into wx_feedback_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="questionTitle != null">question_title,</if>
+            <if test="questionDesc != null">question_desc,</if>
+            <if test="questionType != null">question_type,</if>
+            <if test="answer != null">answer,</if>
+            <if test="contact != null">contact,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="questionTitle != null">#{questionTitle},</if>
+            <if test="questionDesc != null">#{questionDesc},</if>
+            <if test="questionType != null">#{questionType},</if>
+            <if test="answer != null">#{answer},</if>
+            <if test="contact != null">#{contact},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWxFeedbackLog" parameterType="WxFeedbackLog">
+        update wx_feedback_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="questionTitle != null">question_title = #{questionTitle},</if>
+            <if test="questionDesc != null">question_desc = #{questionDesc},</if>
+            <if test="questionType != null">question_type = #{questionType},</if>
+            <if test="answer != null">answer = #{answer},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWxFeedbackLogById" parameterType="String">
+        delete from wx_feedback_log where id = #{id}
+    </delete>
+
+    <delete id="deleteWxFeedbackLogByIds" parameterType="String">
+        delete from wx_feedback_log where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
